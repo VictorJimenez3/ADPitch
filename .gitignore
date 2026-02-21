@@ -1,0 +1,35 @@
+# Environment
+.env
+
+# Database
+sync-engine/data/*.db
+sync-engine/data/*.db-wal
+sync-engine/data/*.db-shm
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+*.egg-info/
+
+# Node
+node_modules/
+dashboard/dist/
+dashboard/build/
+
+# C++ build
+presage-capture/build/
+*.o
+*.so
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
