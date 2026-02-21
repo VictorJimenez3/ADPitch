@@ -26,7 +26,7 @@ External Camera
          │ Writes to physiology_events table
          ▼
 ┌─────────────────┐
-│   SQLite DB      │ ← sync-engine/data/saleslens.db
+│   SQLite DB      │ ← sync-engine/data/adpitch.db
 │                  │   (Same file that transcription/ writes to)
 └─────────────────┘
 ```
@@ -59,7 +59,7 @@ mkdir build && cd build
 cmake .. && make
 
 # 3. Run (pass session_id as arg, or hardcode for testing)
-./saleslens_capture --api-key $PRESAGE_API_KEY --session-id abc123
+./adpitch_capture --api-key $PRESAGE_API_KEY --session-id abc123
 ```
 
 ## Camera Requirements
@@ -75,7 +75,7 @@ cmake .. && make
 
 2. **SQLite from C++:** Use the sqlite3 C library. It's included in Ubuntu. Link with `-lsqlite3`.
 
-3. **DB path:** The database is at `../sync-engine/data/saleslens.db` relative to this folder. Or read from an env var.
+3. **DB path:** The database is at `../sync-engine/data/adpitch.db` relative to this folder. Or read from an env var.
 
 4. **Write frequency:** The SmartSpectra callback fires ~1/second. Write every callback to the DB.
 
