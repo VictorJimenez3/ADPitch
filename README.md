@@ -1,10 +1,10 @@
-# 🔍 SalesLens — AI-Powered Sales Conversation Intelligence
+# 🔍 ADPitch — AI-Powered Sales Conversation Intelligence
 
 **ADP Hackathon Project** — Help the sales team remember, find, and reuse what they already know about customers.
 
 ## What It Does
 
-SalesLens uses a camera + microphone during a sales conversation to capture:
+ADPitch uses a camera + microphone during a sales conversation to capture:
 1. **Customer physiology** (Presage SmartSpectra) — heart rate, HRV, stress, engagement, emotions
 2. **Conversation transcript** (ElevenLabs Scribe v2) — real-time speech-to-text with word timestamps
 
@@ -45,7 +45,7 @@ Microphone ──→ [transcription] ──→ ┘         ↑                �
 ### 1. Clone & Configure
 ```bash
 git clone <repo-url>
-cd saleslens
+cd ADPitch
 cp .env.example .env
 # Fill in your API keys (see below)
 ```
@@ -75,7 +75,7 @@ cd dashboard && npm install
 ### 4. Run Everything (each in its own terminal)
 ```bash
 # Terminal 1 — Presage camera capture
-cd presage-capture && ./build/saleslens_capture
+cd presage-capture && ./build/ADPitch_capture
 
 # Terminal 2 — ElevenLabs transcription
 cd transcription && python src/realtime_transcriber.py
@@ -101,7 +101,7 @@ cd dashboard && npm run dev
 
 ## Database Location
 
-The SQLite database lives at `sync-engine/data/saleslens.db`. This path is configured in `shared/config.py` and used by ALL modules. The DB file is gitignored — each dev generates it locally with `python sync-engine/src/init_db.py`.
+The SQLite database lives at `sync-engine/data/ADPitch.db`. This path is configured in `shared/config.py` and used by ALL modules. The DB file is gitignored — each dev generates it locally with `python sync-engine/src/init_db.py`.
 
 ---
 
