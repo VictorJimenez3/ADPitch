@@ -28,7 +28,7 @@ Microphone
          │ Writes to transcript_segments table
          ▼
 ┌─────────────────┐
-│   SQLite DB      │ ← sync-engine/data/saleslens.db
+│   SQLite DB      │ ← sync-engine/data/adpitch.db
 │                  │   (Same file that presage-capture writes to)
 └─────────────────┘
 ```
@@ -121,7 +121,7 @@ wss://api.elevenlabs.io/v1/speech-to-text/realtime
 
 1. **Timestamps must be UTC milliseconds.** ElevenLabs returns relative timestamps (seconds from stream start). Convert: `utc_ms = session_start_ms + (word_start_seconds * 1000)`
 
-2. **The DB path is:** `../sync-engine/data/saleslens.db` — or import from `shared/config.py`
+2. **The DB path is:** `../sync-engine/data/ADPitch.db` — or import from `shared/config.py`
 
 3. **Audio format:** ElevenLabs realtime expects PCM 16kHz mono. PyAudio can capture this directly.
 
