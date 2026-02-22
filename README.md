@@ -33,7 +33,7 @@ Microphone ──→ [transcription] ──→ ┘         ↑                �
 |--------|-------|---------------|-------|
 | `presage-capture/` | **Person 1** | Camera → physiology metrics → DB | C++ / SmartSpectra SDK |
 | `transcription/` | **Person 2** | Microphone → transcript → DB | Python / ElevenLabs SDK |
-| `sync-engine/` + `insights-engine/` | **Person 3** | DB merge + Claude AI analysis | Python / SQLite / Claude API |
+| `sync-engine/` + `insights-engine/` | **Person 3** | DB merge + Gemini AI analysis | Python / SQLite / Claude API |
 | `dashboard/` + `api-server/` | **Person 4** | Web UI + REST API | React + Python / FastAPI |
 
 **Every folder has its own README** explaining exactly what to build, how it connects to the others, and what data format to use. Read YOUR folder's README first, then skim the others.
