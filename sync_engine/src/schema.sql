@@ -1,6 +1,6 @@
 -- sync-engine/src/schema.sql
 -- ═══════════════════════════════════════════════════════════
--- SalesLens Database Schema
+-- ADPitch Database Schema
 -- ═══════════════════════════════════════════════════════════
 --
 -- This is the CONTRACT between all modules. If you change this,
@@ -42,10 +42,6 @@ CREATE TABLE IF NOT EXISTS physiology_events (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
     session_id      TEXT NOT NULL REFERENCES sessions(session_id),
     timestamp_ms    INTEGER NOT NULL,   -- UTC millis — THE SYNC KEY
-    heart_rate      REAL,               -- BPM
-    hrv             REAL,               -- Heart rate variability (ms)
-    breathing_rate  REAL,               -- Breaths per minute
-    phasic          REAL,               -- Relative blood pressure trend
     emotion_score   REAL,               -- -1.0 to 1.0
     engagement      REAL,               -- 0.0 to 1.0
     blink_rate      REAL,               -- Blinks per minute
@@ -97,3 +93,79 @@ CREATE INDEX IF NOT EXISTS idx_transcript_session_time
 
 CREATE INDEX IF NOT EXISTS idx_insights_session
     ON insights(session_id);
+
+-- ─── Speaker Map (diarization label -> role) ─────────────────
+-- Written by: transcription (heuristic mapping) or UI (manual fix)
+-- Allows mapping diarized speakers (e.g., "spk_0") to app roles.
+
+CREATE TABLE IF NOT EXISTS speaker_map (
+    session_id     TEXT NOT NULL REFERENCES sessions(session_id),
+    diar_label     TEXT NOT NULL,  -- diarization label like "spk_0"
+    role           TEXT NOT NULL CHECK(role IN ('seller','customer')),
+    PRIMARY KEY (session_id, diar_label)
+);
+
+CREATE INDEX IF NOT EXISTS idx_speaker_map_session
+    ON speaker_map(session_id);
+
+
+-- ───────────────────────────────────────────────────────────
+-- Gemini outputs (AI summaries)
+-- ───────────────────────────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS gemini_outputs (
+  id            INTEGER PRIMARY KEY AUTOINCREMENT,
+  session_id    TEXT NOT NULL REFERENCES sessions(session_id),
+
+  target_role   TEXT NOT NULL CHECK(target_role IN ('customer','seller','overall')),
+  prompt_version TEXT,
+  model         TEXT NOT NULL DEFAULT 'gemini',
+  model_version TEXT,
+
+  summary_md    TEXT NOT NULL,       -- narrative summary (markdown)
+  key_points    TEXT,                -- optional markdown or JSON string
+  action_items  TEXT,                -- optional markdown or JSON string
+
+  sentiment_score  REAL,             -- optional parsed metric (-1..1)
+  engagement_score REAL,             -- optional parsed metric (0..1)
+  risk_score       REAL,             -- optional parsed metric (0..1)
+
+  created_at    DATETIME DEFAULT CURRENT_TIMESTAMP,
+  raw_json      TEXT                 -- store full response for debugging/replay
+);
+
+CREATE INDEX IF NOT EXISTS idx_gemini_outputs_session_role
+  ON gemini_outputs(session_id, target_role);
+
+
+-- ───────────────────────────────────────────────────────────
+-- Mood timeseries (graph-friendly aggregates)
+-- ───────────────────────────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS mood_timeseries (
+  id              INTEGER PRIMARY KEY AUTOINCREMENT,
+  session_id      TEXT NOT NULL REFERENCES sessions(session_id),
+
+  subject_role    TEXT NOT NULL DEFAULT 'customer'
+                  CHECK(subject_role IN ('customer','seller')),
+
+  window_start_ms INTEGER NOT NULL,
+  window_end_ms   INTEGER NOT NULL,
+
+  mood_score      REAL,     -- typically avg(emotion_score) in that window
+  engagement      REAL,     -- avg(engagement)
+  blink_rate      REAL,     -- avg(blink_rate) if present
+  is_talking_pct  REAL,     -- percent of samples where is_talking=1
+
+  sample_count    INTEGER NOT NULL DEFAULT 0,
+  source          TEXT NOT NULL DEFAULT 'presage',
+  created_at      DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_mood_timeseries_session_time
+  ON mood_timeseries(session_id, window_start_ms);
+
+SELECT window_start_ms, mood_score, engagement
+FROM mood_timeseries
+WHERE session_id = ? AND subject_role = 'customer'
+ORDER BY window_start_ms ASC;
